@@ -1,0 +1,61 @@
+---
+# JMX Exporter Configuration for Spring Boot
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+whitelistObjectNames:
+  - "java.lang:*"
+  - "java.nio:*"
+  - "Catalina:*"
+  - "Tomcat:*"
+  - "org.apache.tomcat:*"
+  - "HikariPool-*:*"
+  - "com.zaxxer.hikari:*"
+
+rules:
+  # JVM Memory
+  - pattern: 'java.lang<type=Memory><(.*)>(\w+):'
+    name: jvm_memory_$2
+    labels:
+      area: "$1"
+    type: GAUGE
+
+  # JVM GC
+  - pattern: 'java.lang<type=GarbageCollector, name=(.*)><>(\w+):'
+    name: jvm_gc_$2
+    labels:
+      gc: "$1"
+    type: GAUGE
+
+  # JVM Threads
+  - pattern: 'java.lang<type=Threading><>(\w+):'
+    name: jvm_threads_$1
+    type: GAUGE
+
+  # Tomcat
+  - pattern: 'Tomcat<type=GlobalRequestProcessor, name=\"(\w+-\w+)-(\d+)\"><>(\w+):'
+    name: tomcat_$3_total
+    labels:
+      port: "$2"
+      protocol: "$1"
+    type: COUNTER
+
+  - pattern: 'Tomcat<type=ThreadPool, name=\"(\w+-\w+)-(\d+)\"><>(\w+):'
+    name: tomcat_threads_$3
+    labels:
+      port: "$2"
+      protocol: "$1"
+    type: GAUGE
+
+  # HikariCP
+  - pattern: 'com.zaxxer.hikari<type=Pool \((\w+)\)><>(\w+)'
+    name: hikaricp_$2
+    labels:
+      pool: "$1"
+    type: GAUGE
+
+  - pattern: 'com.zaxxer.hikari<type=PoolStats \((\w+)\)><>(\w+)'
+    name: hikaricp_$2
+    labels:
+      pool: "$1"
+    type: GAUGE
+

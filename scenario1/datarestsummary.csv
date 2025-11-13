@@ -1,0 +1,6 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,Received KB/sec,Sent KB/sec,Avg. Bytes
+GET /items?page&size,367911,15,5,295,7.20,0.000%,197.81246,5296.36,28.96,27417.2
+GET /items?categoryId,147172,12,5,139,6.74,0.000%,79.14618,2080.35,12.71,26915.7
+GET /categories/{id}/items,147160,11,5,127,4.71,0.000%,79.14883,2084.73,12.71,26971.5
+GET /categories?page&size,73583,11,5,124,4.45,0.000%,39.58438,1043.76,6.38,27000.8
+TOTAL,735826,13,5,295,6.64,0.000%,395.62707,10503.49,60.74,27186.1

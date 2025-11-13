@@ -1,0 +1,163 @@
+==========================================================
+  REST API BENCHMARK - GUIDE DE DÉMARRAGE RAPIDE
+==========================================================
+
+Ce fichier contient UNIQUEMENT les commandes à exécuter dans l'ordre.
+Pour plus de détails, consultez SETUP-INITIAL.md
+
+----------------------------------------------------------
+ÉTAPE 1 : Ouvrir PowerShell dans le dossier du projet
+----------------------------------------------------------
+
+cd C:\Users\Microsoft\Desktop\rest-benchmark
+
+
+----------------------------------------------------------
+ÉTAPE 2 : Créer les dossiers nécessaires
+----------------------------------------------------------
+
+New-Item -ItemType Directory -Force -Path jmeter\data
+New-Item -ItemType Directory -Force -Path jmeter\results
+
+
+----------------------------------------------------------
+ÉTAPE 3 : Démarrer Docker (assurez-vous que Docker Desktop est lancé)
+----------------------------------------------------------
+
+docker-compose up -d
+
+⏳ Attendre 30 secondes...
+
+Vérifier :
+docker-compose ps
+
+✅ Vous devez voir 4 conteneurs "Up"
+
+
+----------------------------------------------------------
+ÉTAPE 4 : Compiler l'application
+----------------------------------------------------------
+
+mvn clean package -DskipTests
+
+⏳ Première fois : ~10 minutes (téléchargement des dépendances)
+
+
+----------------------------------------------------------
+ÉTAPE 5 : Générer les données de test
+----------------------------------------------------------
+
+python jmeter\generate-test-data.py
+
+✅ Devrait créer 5 fichiers CSV dans jmeter\data\
+
+
+----------------------------------------------------------
+ÉTAPE 6 : Démarrer l'application (variante Spring avec données)
+----------------------------------------------------------
+
+java -jar -Dspring.profiles.active=spring,load-data -Xms1g -Xmx2g target\rest-benchmark-0.0.1-SNAPSHOT.jar
+
+⏳ Attendre 1-2 minutes (chargement de 2000 catégories + 100,000 items)
+
+✅ Quand vous voyez "Started RestBenchmarkApplication", c'est prêt !
+
+
+----------------------------------------------------------
+ÉTAPE 7 : TESTER (dans un NOUVEAU PowerShell)
+----------------------------------------------------------
+
+# Health check
+curl http://localhost:8080/actuator/health
+
+# Lister des catégories
+curl http://localhost:8080/api/spring/categories?page=0&size=5
+
+# Lister des items
+curl http://localhost:8080/api/spring/items?page=0&size=5
+
+✅ Si vous obtenez du JSON, tout fonctionne !
+
+
+----------------------------------------------------------
+ÉTAPE 8 : Vérifier les données dans PostgreSQL
+----------------------------------------------------------
+
+docker exec -it benchmark_postgres psql -U benchmark_user -d benchmark_db
+
+Commandes SQL :
+  SELECT COUNT(*) FROM category;    -- Devrait afficher 2000
+  SELECT COUNT(*) FROM item;        -- Devrait afficher ~100,000
+  \q                                -- Quitter
+
+
+----------------------------------------------------------
+ÉTAPE 9 : Ouvrir les interfaces de monitoring
+----------------------------------------------------------
+
+Prometheus : http://localhost:9090
+Grafana    : http://localhost:3000  (admin/admin)
+InfluxDB   : http://localhost:8086
+
+
+==========================================================
+VOUS ÊTES PRÊT ! 🚀
+==========================================================
+
+Pour tester les autres variantes :
+1. Arrêter l'application actuelle (Ctrl+C)
+2. Lancer avec un autre profil :
+
+   JERSEY :
+   java -jar -Dspring.profiles.active=jersey -Xms1g -Xmx2g target\rest-benchmark-0.0.1-SNAPSHOT.jar
+   Endpoints : http://localhost:8080/api/jersey/*
+
+   SPRING DATA REST :
+   java -jar -Dspring.profiles.active=datarest -Xms1g -Xmx2g target\rest-benchmark-0.0.1-SNAPSHOT.jar
+   Endpoints : http://localhost:8080/api/datarest/*
+
+
+==========================================================
+COMMANDES UTILES
+==========================================================
+
+# Voir les logs Docker
+docker-compose logs -f
+
+# Arrêter Docker
+docker-compose down
+
+# Recompiler après modification
+mvn clean package -DskipTests
+
+# Se connecter à PostgreSQL
+docker exec -it benchmark_postgres psql -U benchmark_user -d benchmark_db
+
+
+==========================================================
+EN CAS DE PROBLÈME
+==========================================================
+
+1. Port 5432 déjà utilisé ?
+   → Arrêter l'autre PostgreSQL ou changer le port dans docker-compose.yml
+
+2. Port 8080 déjà utilisé ?
+   → Trouver et arrêter l'autre processus :
+   Get-NetTCPConnection -LocalPort 8080
+
+3. Docker ne démarre pas ?
+   → Vérifier que Docker Desktop est lancé
+   → Essayer : docker-compose restart
+
+4. Application ne trouve pas PostgreSQL ?
+   → Attendre 30 secondes après docker-compose up -d
+   → Vérifier : docker-compose ps
+
+5. Erreurs Maven ?
+   → Vérifier Internet (télécharge des dépendances)
+   → Essayer : mvn clean puis mvn package
+
+Consultez SETUP-INITIAL.md pour le dépannage complet.
+
+==========================================================
+

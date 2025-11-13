@@ -1,0 +1,161 @@
+{
+  "dashboard": {
+    "title": "REST API Benchmark - Performance Comparison",
+    "tags": ["rest", "benchmark", "spring", "jersey"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "10s",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "Requests Per Second (RPS)",
+        "targets": [
+          {
+            "expr": "rate(http_server_requests_seconds_count{application=\"rest-benchmark\"}[1m])",
+            "legendFormat": "{{uri}} - {{method}}"
+          }
+        ],
+        "yaxes": [
+          {"label": "req/s", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "graph",
+        "title": "Response Time (p95)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{application=\"rest-benchmark\"}[1m]))",
+            "legendFormat": "{{uri}} - p95"
+          }
+        ],
+        "yaxes": [
+          {"label": "seconds", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "type": "graph",
+        "title": "JVM Memory Usage",
+        "targets": [
+          {
+            "expr": "jvm_memory_used_bytes{application=\"rest-benchmark\", area=\"heap\"} / 1024 / 1024",
+            "legendFormat": "Heap Used (MB)"
+          },
+          {
+            "expr": "jvm_memory_max_bytes{application=\"rest-benchmark\", area=\"heap\"} / 1024 / 1024",
+            "legendFormat": "Heap Max (MB)"
+          }
+        ],
+        "yaxes": [
+          {"label": "MB", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "type": "graph",
+        "title": "CPU Usage",
+        "targets": [
+          {
+            "expr": "process_cpu_usage{application=\"rest-benchmark\"} * 100",
+            "legendFormat": "Process CPU %"
+          },
+          {
+            "expr": "system_cpu_usage{application=\"rest-benchmark\"} * 100",
+            "legendFormat": "System CPU %"
+          }
+        ],
+        "yaxes": [
+          {"label": "%", "show": true, "max": 100},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "type": "graph",
+        "title": "GC Pause Time",
+        "targets": [
+          {
+            "expr": "rate(jvm_gc_pause_seconds_sum{application=\"rest-benchmark\"}[1m])",
+            "legendFormat": "{{gc}} - {{action}}"
+          }
+        ],
+        "yaxes": [
+          {"label": "seconds/s", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 6,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "type": "graph",
+        "title": "Active Threads",
+        "targets": [
+          {
+            "expr": "jvm_threads_live{application=\"rest-benchmark\"}",
+            "legendFormat": "Live Threads"
+          },
+          {
+            "expr": "jvm_threads_peak{application=\"rest-benchmark\"}",
+            "legendFormat": "Peak Threads"
+          }
+        ],
+        "yaxes": [
+          {"label": "threads", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 7,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "type": "graph",
+        "title": "HikariCP Connection Pool",
+        "targets": [
+          {
+            "expr": "hikaricp_connections_active{application=\"rest-benchmark\"}",
+            "legendFormat": "Active Connections"
+          },
+          {
+            "expr": "hikaricp_connections_idle{application=\"rest-benchmark\"}",
+            "legendFormat": "Idle Connections"
+          },
+          {
+            "expr": "hikaricp_connections_max{application=\"rest-benchmark\"}",
+            "legendFormat": "Max Connections"
+          }
+        ],
+        "yaxes": [
+          {"label": "connections", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 8,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "type": "graph",
+        "title": "HTTP Error Rate",
+        "targets": [
+          {
+            "expr": "rate(http_server_requests_seconds_count{application=\"rest-benchmark\", status=~\"4..|5..\"}[1m])",
+            "legendFormat": "{{status}} - {{uri}}"
+          }
+        ],
+        "yaxes": [
+          {"label": "errors/s", "show": true},
+          {"show": false}
+        ]
+      }
+    ]
+  }
+}
+

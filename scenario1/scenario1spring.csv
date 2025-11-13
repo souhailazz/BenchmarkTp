@@ -1,0 +1,6 @@
+Label,# Samples,Average,Median,90% Line,95% Line,99% Line,Min,Max,Error %,Throughput,Received KB/sec,Sent KB/sec
+GET /items?page&size,366108,14,13,22,27,42,4,167,0.000%,196.85353,1221.19,28.43
+GET /items?categoryId,146448,14,13,22,27,44,4,166,0.000%,78.74962,472.92,12.49
+GET /categories/{id}/items,146432,11,10,16,18,27,4,169,0.000%,78.74623,472.90,12.49
+GET /categories?page&size,73223,16,16,20,23,38,5,156,0.000%,39.38370,29.75,6.27
+TOTAL,732211,14,13,21,25,41,4,169,0.000%,393.70374,2196.66,59.68
